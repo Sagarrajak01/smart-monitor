@@ -9,7 +9,7 @@ float Analyzer::addSample(long value) {
     }
     samples.push_back(value);
 
-    // EMA Logic: current = (alpha * new_value) + (1 - alpha) * previous_ema
+    // EMA Logic
     if (currentEMA == 0.0f) currentEMA = value;
     else currentEMA = (alpha * value) + (1.0f - alpha) * currentEMA;
 
@@ -19,8 +19,7 @@ float Analyzer::addSample(long value) {
 float Analyzer::calculateSlope() {
     if (samples.size() < 2) return 0.0f;
 
-    // Simple Linear Regression slope formula for equidistant points
-    // n = samples.size()
+    // Linear Regression slope
     int n = samples.size();
     float sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
 
