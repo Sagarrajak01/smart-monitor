@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+npm-debug.log*
+.env
+
+# C++ Binaries
+# Ignore all files in engine/ except .cpp and .h files
+engine/*
+!engine/*.cpp
+!engine/*.h
+!engine/*.hpp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
