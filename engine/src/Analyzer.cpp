@@ -4,7 +4,7 @@
 Analyzer::Analyzer(int size) : windowSize(size), currentEMA(0.0f), alpha(0.2f) {}
 
 float Analyzer::addSample(long value) {
-    if (samples.size() >= windowSize) {
+    if (static_cast<int> (samples.size()) >= windowSize) {
         samples.pop_front();
     }
     samples.push_back(value);
