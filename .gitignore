@@ -5,13 +5,23 @@ npm-debug.log*
 
 # C++ Binaries
 # Ignore all files in engine/ except .cpp and .h files
-engine/*
 !engine/*.cpp
 !engine/*.h
 !engine/*.hpp
+engine/smart-monitor
+engine/leaker
+*.o
+*.a
+*.so
 
 # OS files
 .DS_Store
 Thumbs.db
 
 # Misc
+notes.md
+
+# --- Databases
+*.sqlite
+*.db
+*.db-journal
