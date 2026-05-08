@@ -3,12 +3,13 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const readline = require('readline');
+const { save, getRecent } = require('./database');
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: "*" }, 
+    cors: { origin: "*" },
     connectionStateRecovery: {}
 });
 
@@ -21,14 +22,26 @@ const rl = readline.createInterface({ input: engine.stdout });
 
 console.log(`[Bridge] Monitoring PID: ${targetPID}`);
 
-// 2. Capture and Broadcast Data 
+// 2. Capture, Broadcast, and Persist Data 
 rl.on('line', (line) => {
     try {
         const stats = JSON.parse(line);
         console.log(`[Data] PID: ${stats.pid} | Status: ${stats.status}`);
+
         io.emit('metrics', stats);
-    } catch (e) {
+        save(stats);
         
+    } catch (e) {
+
+    }
+});
+
+app.get('/api/history', (req, res) => {
+    try {
+        const history = getRecent(200); // Fetch last 200 rows
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch history" });
     }
 });
 
@@ -40,9 +53,9 @@ engine.stderr.on('data', (data) => {
 // 4. CLEAN SHUTDOWN --fix "Address in Use"
 const cleanup = () => {
     console.log('\n[Bridge] Force-releasing resources...');
-    
+
     if (engine) {
-        engine.kill('SIGKILL'); 
+        engine.kill('SIGKILL');
     }
 
     server.close(() => {
@@ -52,7 +65,7 @@ const cleanup = () => {
 
     setTimeout(() => {
         process.exit(0);
-    }, 500); 
+    }, 500);
 };
 
 // Listen for Ctrl+C
