@@ -4,7 +4,7 @@ import { StatCard } from './components/StatCard';
 import { TelemetryChart } from './components/TelemetryChart';
 import { LoadingScreen } from './components/LoadingScreen';
 import { useTheme } from './hooks/useTheme';
-import { socket } from './services/socket';
+import { socket, fetchHistory } from './services/socket'; 
 import { CHART_CONFIG } from './utils/constants';
 
 function App() {
@@ -13,6 +13,23 @@ function App() {
   const [dark, setDark] = useTheme(false);
 
   useEffect(() => {
+
+    const loadInitialData = async () => {
+      const dbHistory = await fetchHistory();
+      if (dbHistory.length > 0) {
+        // Map DB fields to chart fields (mem -> raw_kb, t is calculated)
+        const formatted = dbHistory.map(entry => ({
+          ...entry,
+          raw_kb: entry.usage, 
+          t: entry.time.slice(3, 8)
+        }));
+        setHistory(formatted);
+      }
+    };
+
+    loadInitialData();
+
+    // LIVE UPDATES: Listen for real-time metrics
     socket.on('metrics', (data) => {
       setMetrics(data);
       setHistory(prev => [
@@ -24,18 +41,36 @@ function App() {
     return () => socket.off('metrics');
   }, []);
 
-  if (!metrics) return <LoadingScreen />;
+  if (!metrics && history.length === 0) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="max-w-6xl mx-auto">
         <Header dark={dark} setDark={setDark} />
 
+        {/* Dynamic Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatCard title="Memory Workload" value={(metrics.raw_kb / 1024).toFixed(2)} unit="MB" />
-          <StatCard title="Regression Slope" value={metrics.slope.toFixed(4)} unit="KB/S" />
-          <StatCard title="Target Process" value={metrics.pid} unit="PID" />
-          <StatCard title="System State" value={metrics.status} unit="OS" status={metrics.status} />
+          <StatCard 
+            title="Memory Workload" 
+            value={(metrics?.raw_kb / 1024 || 0).toFixed(2)} 
+            unit="MB" 
+          />
+          <StatCard 
+            title="Regression Slope" 
+            value={metrics?.slope.toFixed(4) || 0} 
+            unit="KB/S" 
+          />
+          <StatCard 
+            title="Target Process" 
+            value={metrics?.pid || "---"} 
+            unit="PID" 
+          />
+          <StatCard 
+            title="System State" 
+            value={metrics?.status || "IDLE"} 
+            unit="OS" 
+            status={metrics?.status} 
+          />
         </div>
 
         <TelemetryChart history={history} dark={dark} />
