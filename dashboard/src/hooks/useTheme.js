@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const useTheme = () => {
   const [isDark, setIsDark] = useState(() => {
@@ -17,5 +17,6 @@ export const useTheme = () => {
       localStorage.setItem('theme', 'light'); 
     }
   }, [isDark]);
+
   return [isDark, setIsDark];
 };
