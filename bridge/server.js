@@ -1,85 +1,66 @@
-const { spawn } = require('child_process');
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const readline = require('readline');
-const { save, getRecent } = require('./database');
+const cors = require('cors');
+const { execSync } = require('child_process');
 require('dotenv').config();
+
+const { save, getRecent } = require('./database');
+const { startEngine, stopEngine } = require('./logic/engine');
+const { processTelemetry } = require('./logic/metrics');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*" },
-    connectionStateRecovery: {}
-});
+const io = new Server(server, { cors: { origin: "*" } });
 
-const PORT = process.env.PORT || 3000;
-const targetPID = process.argv[2] || process.pid;
+app.use(cors());
 
-// 1. Spawn C++ Engine
-const engine = spawn('../engine/smart-monitor', [targetPID]);
-const rl = readline.createInterface({ input: engine.stdout });
-
-console.log(`[Bridge] Monitoring PID: ${targetPID}`);
-
-// 2. Capture, Broadcast, and Persist Data 
-rl.on('line', (line) => {
-    try {
-        const stats = JSON.parse(line);
-        console.log(`[Data] PID: ${stats.pid} | Status: ${stats.status}`);
-
-        io.emit('metrics', stats);
-        save(stats);
-        
-    } catch (e) {
-
-    }
-});
-
-app.get('/api/history', (req, res) => {
-    try {
-        const history = getRecent(200); // Fetch last 200 rows
-        res.json(history);
-    } catch (err) {
-        res.status(500).json({ error: "Failed to fetch history" });
-    }
-});
-
-// 3. Capture C++ Errors
-engine.stderr.on('data', (data) => {
-    console.error(`[C++ Error] ${data}`);
-});
-
-// 4. CLEAN SHUTDOWN --fix "Address in Use"
-const cleanup = () => {
-    console.log('\n[Bridge] Force-releasing resources...');
-
-    if (engine) {
-        engine.kill('SIGKILL');
-    }
-
-    server.close(() => {
-        console.log('[Bridge] Port released.');
-        process.exit(0);
+// CORE HANDLER 
+const initiateMonitoring = (pid, name) => {
+    startEngine(pid, (line) => {
+        const processed = processTelemetry(line, name);
+        if (processed) {
+            io.emit('metrics', processed);
+            save(processed);
+        }
     });
-
-    setTimeout(() => {
-        process.exit(0);
-    }, 500);
 };
 
-// Listen for Ctrl+C
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
-
-server.on('error', (e) => {
-    if (e.code === 'EADDRINUSE') {
-        console.error(`[Fatal] Port ${PORT} is busy. Attempting to fix...`);
-        process.exit(1);
-    }
+// SOCKETS 
+io.on('connection', (socket) => {
+    socket.on('switch-target', (pid) => {
+        let name = "Unknown";
+        try {
+            name = execSync(`ps -p ${pid} -o comm=`).toString().trim();
+        } catch (e) { name = `PID: ${pid}`; }
+        initiateMonitoring(pid, name);
+    });
 });
 
-// Start Server
+// REST API 
+app.get('/api/top-processes', (req, res) => {
+    try {
+        const output = execSync(`ps -eo pid,comm,%mem --sort=-%mem | head -6`).toString();
+        const processes = output.trim().split('\n').slice(1).map(l => {
+            const [pid, name, mem] = l.trim().split(/\s+/);
+            return { pid, name, mem: parseFloat(mem).toFixed(1) };
+        });
+        res.json(processes);
+    } catch (e) { res.status(500).json({ error: "Failed" }); }
+});
+
+app.get('/api/history', (req, res) => res.json(getRecent(200)));
+
+
+const PORT = 3000;
+const initialPid = process.argv[2] || process.pid;
+initiateMonitoring(initialPid, "Initial-System");
+
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Bridge] Server active on http://0.0.0.0:${PORT}`);
+    console.log(`[Bridge] Sagar Standard Live on Port ${PORT}`);
+});
+
+process.on('SIGINT', () => {
+    stopEngine();
+    process.exit(0);
 });
