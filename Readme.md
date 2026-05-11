@@ -14,6 +14,20 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 
 ---
 
+
+# Architecture Flow
+
+```text
+[ C++ Engine ]
+             ↓ (Pipe/Socket)
+       [ Node.js Bridge ] ↔ [ SQLite DB ]
+             ↓ (Socket.IO)
+       [ React Dashboard ]
+```
+
+
+---
+
 # Features
 
 - Real-time Linux process memory monitoring
@@ -21,7 +35,7 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 - OLS Linear Regression for memory growth estimation
 - Exponential Moving Average (EMA) smoothing
 - Time-to-Failure (TTF) projection
-- Live WebSocket-based dashboard updates
+- Real-time dashboard updates using `Socket.IO`
 - Historical telemetry persistence using SQLite
 - Modular multi-service architecture
 
@@ -35,7 +49,7 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 - Vite
 - Tailwind CSS
 - SQLite3
-- WebSockets
+- `Socket.IO`
 
 ---
 
@@ -62,7 +76,7 @@ Backend orchestration layer responsible for:
 - Processing telemetry streams
 - Computing Time-to-Failure estimates
 - Persisting historical data into SQLite
-- Broadcasting real-time updates using WebSockets
+- Broadcasting real-time updates using `Socket.IO`
 
 ### Dashboard (`React 19 + Vite`)
 
@@ -71,7 +85,7 @@ Frontend visualization layer responsible for:
 - Rendering real-time telemetry charts
 - Displaying predictive system status
 - Hydrating historical telemetry
-- Live WebSocket synchronization
+- Live `Socket.IO` synchronization
 
 ---
 
@@ -96,6 +110,13 @@ $$
 m = \frac{n\sum(xy) - \sum x \sum y}{n\sum(x^2) - (\sum x)^2}
 $$
 
+Where:
+
+- `m` = memory growth slope
+- `x` = sample timestamp
+- `y` = memory usage value
+- `n` = number of samples
+
 ## 2. Exponential Moving Average (EMA)
 
 EMA smoothing is applied to reduce noise in telemetry streams.
@@ -104,6 +125,12 @@ $$
 EMA_t = \alpha \cdot Value_t + (1 - \alpha) \cdot EMA_{t-1}
 $$
 
+Where:
+
+- `EMA_t` = current smoothed value
+- `Value_t` = current telemetry sample
+- `α` = smoothing factor
+
 ## 3. Time-to-Failure (TTF)
 
 Projected time remaining before memory exhaustion.
@@ -111,6 +138,12 @@ Projected time remaining before memory exhaustion.
 $$
 TTF_{seconds} = \frac{AvailableRAM_{KB}}{GrowthSlope_{KB/s}}
 $$
+
+Where:
+
+- `AvailableRAM_KB` = currently available physical memory
+- `GrowthSlope_KB/s` = estimated memory growth rate
+
 
 ---
 
@@ -202,23 +235,18 @@ npm run dev
 - Native telemetry collection implemented in C++17
 - Low-overhead `/proc` parsing
 - Rolling-window statistical analysis
-- Real-time WebSocket streaming architecture
+- Real-time `Socket.IO` streaming architecture
 - SQLite-backed historical persistence
 
 ---
 
-# Future Improvements
 
-- Docker container telemetry support
-- CPU and disk I/O analytics
-- Anomaly detection models
-- Alerting and notification system
-- Exportable telemetry reports
+# Documentation
+
+The **[Documentation](https://github.com/Sagarrajak01/smart-monitor/tree/main/Documentation)** directory contains day-wise engineering logs documenting the evolution of the project architecture.
 
 ---
 
-**[Documentation](https://github.com/Sagarrajak01/smart-monitor/tree/main/Documentation)**
----
 
 # License
 
