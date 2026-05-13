@@ -158,6 +158,14 @@ Where:
 
 ---
 
+# Quick Installation
+
+```bash
+curl -O https://raw.githubusercontent.com/Sagarrajak01/smart-monitor/feature/add-setup-script/setup.sh
+chmod +x setup.sh
+./setup.sh
+```
+
 # Setup Instructions
 
 ## 1. Clone Repository
