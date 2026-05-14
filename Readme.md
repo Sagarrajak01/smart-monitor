@@ -28,8 +28,15 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
                         ↓
               [ React Dashboard ]
 ```
+---
 
-#### [Low-Level Design (LLD)](./Documentation/LLD.md)
+
+# [Low-Level Design (LLD)](./Documentation/LLD.md)
+
+<p align="center">
+  <img src="./Documentation/diagrams/LLD.svg" alt="Smart Monitor Low-Level Design" width="75%">
+</p>
+
 
 ---
 
