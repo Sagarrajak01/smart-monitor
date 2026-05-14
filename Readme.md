@@ -34,7 +34,7 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 # [Low-Level Design (LLD)](./Documentation/LLD.md)
 
 <p align="center">
-  <img src="./Documentation/diagrams/LLD.svg" alt="Smart Monitor Low-Level Design" width="75%">
+  <img src="./Documentation/diagrams/LLD.svg" alt="Smart Monitor Low-Level Design" width="60%">
 </p>
 
 
