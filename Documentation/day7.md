@@ -40,7 +40,7 @@ Modified the React lifecycle to include a **Hydration Phase**.
 
 ---
 
-### **3. Key Engineering Decisions **
+### **3. Key Engineering Decisions**
 
 * **Why SQLite?** Zero-config, file-based, and perfect for embedded telemetry. It avoids the heavy dependency.
 * **Why `0.0.0.0`?** To demonstrate an understanding of network interfaces beyond the loopback (`127.0.0.1`), allowing for true cross-device monitoring.
