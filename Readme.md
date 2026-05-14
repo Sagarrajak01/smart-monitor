@@ -18,13 +18,18 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 # Architecture Flow
 
 ```text
-[ C++ Engine ]
-             ↓ (Pipe/Socket)
-       [ Node.js Bridge ] ↔ [ SQLite DB ]
-             ↓ (Socket.IO)
-       [ React Dashboard ]
+[ Linux procfs (/proc) ]
+            ↓
+     [ C++17 Engine ]
+            ↓ stdout JSON stream
+     [ Node.js Bridge ]
+        ↙           ↘
+ [ SQLite3 ]     [ Socket.IO ]
+                        ↓
+              [ React Dashboard ]
 ```
 
+#### [Low-Level Design (LLD)](./Documentation/LLD.md)
 
 ---
 
@@ -37,25 +42,27 @@ The system combines a high-performance C++ telemetry engine, a Node.js orchestra
 - Time-to-Failure (TTF) projection
 - Real-time dashboard updates using `Socket.IO`
 - Historical telemetry persistence using SQLite
-- Modular multi-service architecture
+- Layered observability pipeline architecture
 
 ---
 
 # Tech Stack
 
-- C++17
-- Node.js
-- React 19
-- Vite
-- Tailwind CSS
-- SQLite3
-- `Socket.IO`
+| Layer | Technology |
+|---|---|
+| Telemetry Engine | C++17 |
+| Backend Bridge | Node.js |
+| Frontend | React 19 + Vite |
+| Persistence | SQLite3 |
+| Real-time Transport | `Socket.IO` |
+| Styling | Tailwind CSS |
+| Telemetry Source | Linux procfs (`/proc`) |
 
 ---
 
 # Technical Architecture
 
-The project follows a modular architecture where each layer is isolated by responsibility.
+The project follows a layered architecture where each component is isolated by responsibility.
 
 ## Components
 
@@ -66,7 +73,7 @@ High-performance telemetry engine responsible for:
 - Parsing Linux `/proc` memory statistics
 - Collecting process-level metrics
 - Computing OLS regression slopes
-- Streaming telemetry data to the backend
+- Streaming telemetry as JSON through stdout pipes
 
 ### Bridge (`Node.js`)
 
