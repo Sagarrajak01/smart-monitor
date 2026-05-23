@@ -49,6 +49,20 @@ The persistence layer and dashboard were synchronized to provide immediate histo
 
 ---
 
+
+### **6. Database Infrastructure Optimization**
+
+* **Storage Path Separation:** Switched from volatile local execution paths to an absolute, environment-aware configuration utilizing `process.env.DATA_DIR`, laying the foundation for zero-configuration host volume mappings.
+* **Engine Concurrency Tuning:** Disabled traditional transactional blocking behavior by enforcing SQLite Write-Ahead Logging (`PRAGMA journal_mode = WAL`), allowing concurrent, non-blocking asynchronous REST API data reads while the C++ telemetry engine streams metrics at sub-millisecond intervals.
+* **Disk I/O Pipeline Optimization:** Reduced disk write-head thrashing by adjusting constraints to `PRAGMA synchronous = NORMAL`, delegating flushing routines to the OS filesystem cache to eliminate bottlenecks during rapid telemetry streaming.
+* **Search Complexity Reduction:** Implemented an explicit reverse compound index (`idx_memory_logs_created`) over the timestamp sorting column, changing timeline history lookup speeds from an O(N) sequential scan to an optimized O(log N) binary search.
+* **Pre-Compiled Query Caching:** Isolated the SQL string operations (`insertStatement` and `queryStatement`) completely outside the execution loops, forcing the V8 runtime engine to parse, check, and compile database bytecode exactly once during startup to preserve CPU cycles.
+* **Fault Isolation Barriers:** Wrapped the transactional pipeline inside isolated `try-catch` structures, ensuring that database write anomalies or system corruptions log clean errors rather than causing a fatal crash of the backend server.
+
+
+---
+
+
 ### **Summary of System Evolution**
 
 | Component | Previous | Hardened  |
