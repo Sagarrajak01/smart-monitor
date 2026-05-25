@@ -1,0 +1,23 @@
+services:
+  smart-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-monitor
+    restart: unless-stopped
+
+    pid: "host"
+    
+    ports:
+      - "3000:3000"
+      
+    volumes:
+      # Maps the SQLite data safely to a persistent Docker volume
+      - smart-monitor-data:/app/bridge/data
+      
+    environment:
+      - PORT=3000
+      - DATA_DIR=/app/bridge/data
+
+volumes:
+  smart-monitor-data:
