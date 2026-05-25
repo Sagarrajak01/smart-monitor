@@ -25,3 +25,5 @@ notes.md
 *.sqlite
 *.db
 *.db-journal
+bridge/data/telemetry.db-wal
+bridge/data/telemetry.db-shm
