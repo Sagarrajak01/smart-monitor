@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { execSync } = require('child_process');
+const path = require('path'); 
 require('dotenv').config();
 
 const { save, getRecent } = require('./database');
@@ -52,7 +53,17 @@ app.get('/api/top-processes', (req, res) => {
 app.get('/api/history', (req, res) => res.json(getRecent(200)));
 
 
-const PORT = 3000;
+app.use(express.static(path.join(__dirname, '../dashboard/dist')));
+
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+        res.sendFile(path.join(__dirname, '../dashboard/dist/index.html'));
+    } else {
+        next();
+    }
+});
+
+const PORT = process.env.PORT || 3000;
 const initialPid = process.argv[2] || process.pid;
 initiateMonitoring(initialPid, "Initial-System");
 
