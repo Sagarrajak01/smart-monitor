@@ -169,10 +169,11 @@ Where:
 - `g++` with C++17 support
 - Node.js v18+
 - SQLite3
+- Docker & Docker Compose (optional)
 
 ---
 
-# Setup Instructions
+# Docker Deployment
 
 ## 1. Clone Repository
 
@@ -181,9 +182,20 @@ git clone https://github.com/Sagarrajak01/smart-monitor.git
 cd smart-monitor
 ```
 
+## 2. Build and Start Containers
+
+```bash
+docker compose up -d --build
+```
+The interactive dashboard is instantly available at: http://localhost:3000
+Stop the monitor: `docker compose down`
+
+
 ---
 
-## 2. Build the C++ Engine
+# Native Development Setup
+
+## 1. Build the C++ Engine
 
 ```bash
 cd engine
@@ -192,7 +204,7 @@ make
 
 ---
 
-## 3. Configure Backend Environment
+## 2. Configure Backend Environment
 
 Create a `.env` file inside `/bridge`:
 
@@ -209,7 +221,7 @@ PORT=3000
 
 ---
 
-## 4. Start Backend Server
+## 3. Start Backend Server
 
 ```bash
 npm install
@@ -218,7 +230,7 @@ node server.js
 
 ---
 
-## 5. Configure Frontend Environment
+## 4. Configure Frontend Environment
 
 Open a new terminal:
 
@@ -235,7 +247,7 @@ VITE_SOCKET_URL=http://localhost:3000
 
 ---
 
-## 6. Launch Frontend
+## 5. Launch Frontend
 
 ```bash
 npm install
