@@ -1,0 +1,7 @@
+node_modules/
+bridge/node_modules/
+dashboard/node_modules/
+dashboard/dist/
+engine/smart-monitor
+engine/*.o
+.git
