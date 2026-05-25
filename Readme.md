@@ -188,6 +188,7 @@ cd smart-monitor
 docker compose up -d --build
 ```
 The interactive dashboard is instantly available at: http://localhost:3000
+
 Stop the monitor: `docker compose down`
 
 
