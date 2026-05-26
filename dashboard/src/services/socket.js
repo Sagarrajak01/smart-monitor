@@ -1,17 +1,14 @@
 import { io } from 'socket.io-client';
-import { SOCKET_URL } from '../utils/constants';
 
-const FINAL_URL = import.meta.env.VITE_SOCKET_URL || SOCKET_URL;
-
-export const socket = io(FINAL_URL, {
+export const socket = io({
   autoConnect: true,
   reconnectionAttempts: 5,
 });
 
-// REST API Fetch for History
+// REST API Fetch for History 
 export const fetchHistory = async () => {
   try {
-    const response = await fetch(`${FINAL_URL}/api/history`);
+    const response = await fetch(`/api/history`);
     if (!response.ok) throw new Error("Database fetch failed");
     
     const data = await response.json();
