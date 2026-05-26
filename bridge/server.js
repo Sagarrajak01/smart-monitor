@@ -16,7 +16,6 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(cors());
 
-// CORE HANDLER 
 const initiateMonitoring = (pid, name) => {
     startEngine(pid, (line) => {
         const processed = processTelemetry(line, name);
@@ -27,7 +26,6 @@ const initiateMonitoring = (pid, name) => {
     });
 };
 
-// SOCKETS 
 io.on('connection', (socket) => {
     socket.on('switch-target', (pid) => {
         let name = "Unknown";
@@ -38,7 +36,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// REST API 
 app.get('/api/top-processes', (req, res) => {
     try {
         const output = execSync(`ps -eo pid,comm,%mem --sort=-%mem | head -6`).toString();
@@ -51,7 +48,6 @@ app.get('/api/top-processes', (req, res) => {
 });
 
 app.get('/api/history', (req, res) => res.json(getRecent(200)));
-
 
 app.use(express.static(path.join(__dirname, '../dashboard/dist')));
 
@@ -68,7 +64,8 @@ const initialPid = process.argv[2] || process.pid;
 initiateMonitoring(initialPid, "Initial-System");
 
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Bridge] Sagar Standard Live on Port ${PORT}`);
+    console.log(`[Bridge] Live`);
+    console.log(`[UI] Dashboard ready at: http://localhost:${PORT}`);
 });
 
 process.on('SIGINT', () => {
