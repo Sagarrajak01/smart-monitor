@@ -16,13 +16,24 @@ function App() {
   const [dark, setDark] = useTheme(false);
 
   useEffect(() => {
-    fetchHistory().then(data => { if (data) setHistory(data); });
+    // Initial Load: Fetch historical data
+    fetchHistory().then(data => { 
+      if (data) setHistory(data); 
+    });
 
+    // Real-time Subscription: Listen for live metrics
     socket.on('metrics', (data) => {
       setMetrics(data);
       setHistory(prev => [
         ...prev.slice(-(CHART_CONFIG.WINDOW_SIZE - 1)),
-        { ...data, t: new Date().toLocaleTimeString().slice(3, 8) }
+        { 
+          ...data, 
+          time: new Date().toLocaleTimeString([], { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+          }) 
+        }
       ]);
     });
 
