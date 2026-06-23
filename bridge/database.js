@@ -28,10 +28,16 @@ db.exec(`
     status TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
-
-  -- Index optimizing timeline queries to O(log N) complexity
   CREATE INDEX IF NOT EXISTS idx_memory_logs_created ON memory_logs(created_at DESC);
 `);
+
+// Cleanup: Delete records older than 7 days every 2 hour
+setInterval(() => {
+  db.prepare(`
+    DELETE FROM memory_logs 
+    WHERE created_at < datetime('now', '-7 days')
+  `).run();
+}, 7200000); // 2 hours
 
 // Cache compiled SQL queries to bypass runtime parsing overhead
 const insertStatement = db.prepare(`
