@@ -78,7 +78,7 @@ export const TelemetryChart = ({ history, dark, slope }) => {
             </defs>
             
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={dark ? '#1e293b' : '#f1f5f9'} />
-            <XAxis dataKey="t" hide />
+            <XAxis dataKey="time" hide />
             <YAxis hide domain={['auto', (dataMax) => dataMax * 1.2]} />
             
             <ReferenceLine y={threshold} stroke="#ef4444" strokeDasharray="6 4" strokeWidth={1.5}>
