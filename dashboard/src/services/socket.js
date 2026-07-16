@@ -14,14 +14,15 @@ export const fetchHistory = async () => {
     const data = await response.json();
     
     return data.reverse().map((entry) => ({
-      time: new Date(entry.time).toLocaleTimeString([], { 
+      time: new Date(entry.created_at || entry.time || Date.now()).toLocaleTimeString([], {
         hour: '2-digit', 
         minute: '2-digit', 
         second: '2-digit' 
       }),
-      usage: entry.mem,
-      ema: entry.ema,
-      status: entry.status
+      raw_kb: entry.mem_kb || entry.raw_kb || entry.mem || 0,
+      ema_kb: entry.ema_kb || entry.ema || 0,
+      status: entry.status || 'HEALTHY',
+      slope: entry.slope || 0
     }));
   } catch (error) {
     console.error("[Service] History Load Error:", error);
