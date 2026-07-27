@@ -1,6 +1,6 @@
 # Smart Monitor
 
-Smart Monitor is a full-stack Linux observability tool designed to track process memory usage in real time and estimate potential Out-of-Memory (OOM) conditions using statistical trend analysis.
+Smart Monitor is a full-stack Linux Observability Platform designed to track process memory usage in real time and estimate potential Out-of-Memory (OOM) conditions using statistical trend analysis.
 
 The system combines a high-performance C++ telemetry engine, a Node.js orchestration layer, and a React-based live dashboard for visualization and monitoring.
 
